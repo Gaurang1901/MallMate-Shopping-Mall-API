@@ -1,0 +1,4 @@
+package com.shopping.mallmate.repository;
+
+public interface AddressRepository {
+}

@@ -1,0 +1,18 @@
+package com.shopping.mallmate.repository;
+
+
+import com.shopping.mallmate.entity.Category;
+import com.shopping.mallmate.entity.Product;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface CategoryRepository extends JpaRepository<Category, String> {
+
+    Category findCategoryById(String id);
+
+    List<Product> findProductsByCategory(Category category);
+
+    List<>
+
+}
