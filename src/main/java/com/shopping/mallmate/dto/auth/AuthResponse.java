@@ -1,4 +1,4 @@
-package com.shopping.mallmate.dto;
+package com.shopping.mallmate.dto.auth;
 
 import com.shopping.mallmate.entity.enums.USER_ROLE;
 import lombok.AllArgsConstructor;

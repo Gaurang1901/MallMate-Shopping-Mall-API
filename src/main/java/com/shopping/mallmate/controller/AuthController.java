@@ -1,7 +1,7 @@
 package com.shopping.mallmate.controller;
 
 import com.shopping.mallmate.appconfig.JwtProvider;
-import com.shopping.mallmate.dto.AuthResponse;
+import com.shopping.mallmate.dto.auth.AuthResponse;
 import com.shopping.mallmate.entity.User;
 import com.shopping.mallmate.entity.enums.USER_ROLE;
 import com.shopping.mallmate.repository.UserRepository;
@@ -50,7 +50,11 @@ public class AuthController {
             user.setEmail(authRequest.getEmail());
             user.setPassword(passwordEncoder.encode(authRequest.getPassword()));
             user.setName(authRequest.getName());
-
+            if (user.getRole() == null) {
+                user.setRole(USER_ROLE.USER);
+            } else {
+                user.setRole(authRequest.getRole());
+            }
             User savedUser = userRepository.save(user);
 
             Authentication authentication = new UsernamePasswordAuthenticationToken(savedUser.getEmail(), savedUser.getPassword());

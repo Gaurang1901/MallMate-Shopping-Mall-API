@@ -30,11 +30,11 @@ public class User {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
-    private USER_ROLE role = USER_ROLE.USER;
+    private USER_ROLE role;
 
     @OneToOne
     private Address address;
 
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Store> stores;
 }

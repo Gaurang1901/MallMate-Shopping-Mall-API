@@ -23,6 +23,8 @@ public class Store {
 
     private String description;
 
+    @ElementCollection
+    @Column(length = 10000)
     private List<String> image;
 
     @ManyToOne
@@ -31,7 +33,7 @@ public class Store {
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
-    private ProductCategory category;
+    private Category category;
 
     private String phoneNumber;
 

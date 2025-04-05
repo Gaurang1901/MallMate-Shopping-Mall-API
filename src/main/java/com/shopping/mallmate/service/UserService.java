@@ -12,13 +12,21 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public User findUserByJwtToke(String token) {
+    public User findUserByJwtToken(String token) {
         String email = JwtProvider.getEmailFromToken(token);
         return userRepository.findUserByEmail(email);
     }
 
     public User findUserByEmail(String email) {
         User user = userRepository.findUserByEmail(email);
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
+        return user;
+    }
+
+    public User findUserById(String id) {
+        User user = userRepository.findUserById(id);
         if (user == null) {
             throw new RuntimeException("User not found");
         }

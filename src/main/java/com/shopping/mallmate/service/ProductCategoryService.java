@@ -1,9 +1,12 @@
 package com.shopping.mallmate.service;
 
+import com.shopping.mallmate.dto.productCategory.ProductCategoryCreateUpdateRequest;
 import com.shopping.mallmate.entity.ProductCategory;
 import com.shopping.mallmate.repository.ProductCategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class ProductCategoryService {
@@ -21,11 +24,24 @@ public class ProductCategoryService {
     }
 
 
-    public ProductCategory createCategory(ProductCategory category) {
+    public ProductCategory createCategory(ProductCategoryCreateUpdateRequest category) {
         ProductCategory productcategory = new ProductCategory();
         productcategory.setName(category.getName());
-        productcategory.setProducts(category.getProducts());
         return productCategoryRepository.save(productcategory);
     }
 
+    public ProductCategory updateCategory(ProductCategoryCreateUpdateRequest category, String id) {
+        ProductCategory updatedCategory = findCategoryById(id);
+        updatedCategory.setName(category.getName());
+        return productCategoryRepository.save(updatedCategory);
+    }
+
+    public void deleteCategory(String id) {
+        ProductCategory category = findCategoryById(id);
+        productCategoryRepository.delete(category);
+    }
+
+    public List<ProductCategory> findAllCategories() {
+        return productCategoryRepository.findAll();
+    }
 }

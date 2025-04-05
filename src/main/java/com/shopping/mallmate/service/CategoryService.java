@@ -1,5 +1,6 @@
 package com.shopping.mallmate.service;
 
+import com.shopping.mallmate.dto.category.CategoryCreateUpdateRequest;
 import com.shopping.mallmate.entity.Category;
 import com.shopping.mallmate.entity.ProductCategory;
 import com.shopping.mallmate.entity.Product;
@@ -25,17 +26,15 @@ public class CategoryService {
         }
     }
 
-    public Category createCategory(Category category) {
+    public Category createCategory(CategoryCreateUpdateRequest category) {
         Category createdCategory = new Category();
         createdCategory.setName(category.getName());
-        createdCategory.setStores(category.getStores());
         return categoryRepository.save(createdCategory);
     }
 
-    public Category updateCategory(Category category) {
-        Category updatedCategory = findCategoryById(category.getId());
+    public Category updateCategory(CategoryCreateUpdateRequest category, String id) {
+        Category updatedCategory = findCategoryById(id);
         updatedCategory.setName(category.getName());
-        updatedCategory.setStores(category.getStores());
         return categoryRepository.save(updatedCategory);
     }
 

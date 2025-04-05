@@ -36,7 +36,7 @@ public class ProductService {
         createdProduct.setPrice(product.getPrice());
         createdProduct.setQuantity(product.getQuantity());
         createdProduct.setImages(product.getImages());
-        createdProduct.setCategory(product.getCategory());
+        createdProduct.setProductCategory(product.getProductCategory());
         createdProduct.setStore(product.getStore());
         return productRepository.save(createdProduct);
     }
@@ -62,8 +62,8 @@ public class ProductService {
         if (product.getImages() != null && !product.getImages().isEmpty()) {
             existingProduct.setImages(product.getImages());
         }
-        if (product.getCategory() != null) {
-            existingProduct.setCategory(product.getCategory());
+        if (product.getProductCategory() != null) {
+            existingProduct.setProductCategory(product.getProductCategory());
         }
         if (product.getStore() != null) {
             existingProduct.setStore(product.getStore());
