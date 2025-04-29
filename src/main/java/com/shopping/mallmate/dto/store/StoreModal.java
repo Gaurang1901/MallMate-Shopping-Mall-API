@@ -32,6 +32,8 @@ public class StoreModal {
 
     private List<String> images;
 
+    private List<ProductResponseForStores> products;
+
 
     public static StoreModal fromEntity(Store store) {
         return new StoreModal(
@@ -44,7 +46,8 @@ public class StoreModal {
                 store.getInstagramLink(),
                 store.getFacebookLink(),
                 store.getTwitterLink(),
-                store.getImage()
+                store.getImage(),
+                store.getProducts().stream().map(ProductResponseForStores::fromEntity).toList()
         );
     }
 

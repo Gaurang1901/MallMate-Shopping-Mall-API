@@ -18,7 +18,7 @@ import java.util.List;
 import static com.shopping.mallmate.dto.store.StoreModal.fromEntity;
 
 @RestController
-@RequestMapping("/admin/v1/")
+@RequestMapping("/api/admin")
 public class StoreController {
 
     @Autowired
@@ -72,17 +72,23 @@ public class StoreController {
     }
 
     @GetMapping("/store/{id}")
-    public ResponseEntity<Store> getStoreById(@PathVariable String id) {
+    public ResponseEntity<StoreModal> getStoreById(@PathVariable String id) {
         Store store = storeService.findStoreById(id);
-        return new ResponseEntity<>(store, HttpStatus.OK);
+        StoreModal storeModal = fromEntity(store);
+        return new ResponseEntity<>(storeModal, HttpStatus.OK);
 
     }
 
     @GetMapping("/store")
-    public ResponseEntity<List<Store>> searchStore(@RequestParam String keyword) {
+    public ResponseEntity<GetAllStoresResponse> searchStore(@RequestParam String keyword) {
         List<Store> stores = storeService.searchStore(keyword);
+        List<StoreModal> storeModals = stores.stream().map(StoreModal::fromEntity).toList();
+        GetAllStoresResponse response = new GetAllStoresResponse();
+        response.setStores(storeModals);
+        response.setMessage("Stores fetched successfully");
+        response.setStatus(HttpStatus.OK.value());
 
-        return new ResponseEntity<>(stores, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 }

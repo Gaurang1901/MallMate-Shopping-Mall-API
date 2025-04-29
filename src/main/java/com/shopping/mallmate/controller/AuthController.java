@@ -48,23 +48,26 @@ public class AuthController {
 
             User user = new User();
             user.setEmail(authRequest.getEmail());
-            user.setPassword(passwordEncoder.encode(authRequest.getPassword()));
             user.setName(authRequest.getName());
-            if (user.getRole() == null) {
-                user.setRole(USER_ROLE.USER);
+            if (authRequest.getRole().toString().equalsIgnoreCase("ADMIN")) {
+                user.setRole(USER_ROLE.ADMIN);
+            } else if (authRequest.getRole().toString().equalsIgnoreCase("OWNER")) {
+                user.setRole(USER_ROLE.OWNER);
             } else {
-                user.setRole(authRequest.getRole());
+                user.setRole(USER_ROLE.USER);
             }
+            user.setPassword(passwordEncoder.encode(authRequest.getPassword()));
             User savedUser = userRepository.save(user);
 
             Authentication authentication = new UsernamePasswordAuthenticationToken(savedUser.getEmail(), savedUser.getPassword());
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            String jwt = JwtProvider.generateToken(authentication);
+            String jwt = jwtProvider.generateToken(authentication);
 
             AuthResponse authResponse = new AuthResponse();
             authResponse.setToken(jwt);
             authResponse.setRole(savedUser.getRole());
+            authResponse.setUserId(savedUser.getId());
             authResponse.setMsg("User registered successfully");
             authResponse.setStatus(HttpStatus.CREATED.value());
             return new ResponseEntity<>(authResponse, HttpStatus.CREATED);
@@ -78,12 +81,14 @@ public class AuthController {
 
         Authentication authentication = getAuthentication(username, password);
 
-        String token = JwtProvider.generateToken(authentication);
+        String token = jwtProvider.generateToken(authentication);
 
         AuthResponse authResponse = new AuthResponse();
         authResponse.setToken(token);
         authResponse.setMsg("User logged in successfully");
         authResponse.setStatus(HttpStatus.ACCEPTED.value());
+        String email = authentication.getName();
+        authResponse.setUserId(userRepository.findUserByEmail(email).getId());
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         String roles = authorities.isEmpty() ? null : authorities.iterator().next().getAuthority();
         authResponse.setRole(USER_ROLE.valueOf(roles));

@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -42,5 +43,8 @@ public class Product {
     @JoinColumn(name = "store_id", nullable = false)
     private Store store;
 
+    private Date createdAt = new Date();
+
+    private Date updatedAt = new Date();
 
 }

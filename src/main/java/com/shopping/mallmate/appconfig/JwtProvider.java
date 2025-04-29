@@ -16,38 +16,39 @@ import java.util.Set;
 @Service
 public class JwtProvider {
 
-    public static SecretKey key = Keys.hmacShaKeyFor(JwtConstants.JWT_SECRET_KEY.getBytes());
+    private SecretKey key = Keys.hmacShaKeyFor(JwtConstants.JWT_SECRET_KEY.getBytes());
 
-    public static String generateToken(Authentication authentication) {
-
-        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+    public String generateToken(Authentication auth) {
+        Collection<? extends GrantedAuthority> authorities = auth.getAuthorities();
         String roles = populateAuthorities(authorities);
 
-        return Jwts.builder()
+        String jwt = Jwts.builder()
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(new Date().getTime() + 86400000))
-                .claim("roles", roles)
-                .claim("email", authentication.getName())
+                .claim("email", auth.getName())
+                .claim("authorities", roles)
                 .signWith(key)
                 .compact();
+        return jwt;
+
     }
 
-    private static String populateAuthorities(Collection<? extends GrantedAuthority> authorities) {
+    public String getEmailFromJwtToken(String jwt) {
+        jwt = jwt.substring(7);
+
+        Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(jwt).getBody();
+        String email = String.valueOf(claims.get("email"));
+
+        return email;
+    }
+
+    public String populateAuthorities(Collection<? extends GrantedAuthority> collection) {
         Set<String> auths = new HashSet<>();
 
-        for (GrantedAuthority a : authorities) {
-            auths.add(a.getAuthority());
+        for (GrantedAuthority authority : collection) {
+            auths.add(authority.getAuthority());
         }
         return String.join(",", auths);
     }
 
-    public static String getEmailFromToken(String token) {
-        token = token.substring(7);
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-        return String.valueOf(claims.get("username"));
-    }
 }

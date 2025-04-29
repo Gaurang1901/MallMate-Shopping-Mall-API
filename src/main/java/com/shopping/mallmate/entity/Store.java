@@ -27,9 +27,12 @@ public class Store {
     @Column(length = 10000)
     private List<String> image;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Product> products;
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)

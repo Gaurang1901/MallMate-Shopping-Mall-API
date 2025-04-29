@@ -1,5 +1,6 @@
 package com.shopping.mallmate.appconfig;
 
+import com.shopping.mallmate.entity.enums.USER_ROLE;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,43 +16,47 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS)).authorizeHttpRequests(authorize -> authorize.requestMatchers("/api/**").authenticated().requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "OWNER")
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
+        http.sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(Authorize -> Authorize
+                        .requestMatchers("/api/admin/**").hasAnyAuthority(USER_ROLE.ADMIN.toString(), USER_ROLE.OWNER.toString())
+                        .requestMatchers("/api/**").authenticated()
+                        .requestMatchers("/my-profile/**").authenticated()
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(new JwtTokenValidator(), BasicAuthenticationFilter.class)
-                .csrf(AbstractHttpConfigurer::disable)
+                .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
-        return httpSecurity.build();
+
+        return http.build();
+
     }
 
+    // CORS Configuration
     private CorsConfigurationSource corsConfigurationSource() {
         return new CorsConfigurationSource() {
             @Override
             public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
-
                 CorsConfiguration cfg = new CorsConfiguration();
                 cfg.setAllowedOrigins(Arrays.asList(
                         "http://localhost:3000/",
-                        "http://localhost:3001/"
+                        "https://feastfly-food-ordering.vercel.app/"
                 ));
                 cfg.setAllowedMethods(Collections.singletonList("*"));
                 cfg.setAllowCredentials(true);
                 cfg.setAllowedHeaders(Collections.singletonList("*"));
-                cfg.setExposedHeaders(List.of("Authorization"));
+                cfg.setExposedHeaders(Arrays.asList("Authorization"));
                 cfg.setMaxAge(3600L);
                 return cfg;
-
             }
         };
     }
@@ -60,4 +65,5 @@ public class SecurityConfig {
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
 }
