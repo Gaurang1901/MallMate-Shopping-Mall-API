@@ -39,25 +39,6 @@ public class OrderService {
     @Autowired
     private DiscountCouponRepository couponRepository;
 
-    public List<OrderItem> getOrderItemsFromOrderIds(OrderCreateUpdateModel order) {
-        List<OrderItem> orderItems = new ArrayList<>();
-        for (String id : order.getOrderItemIds()) {
-            OrderItem orderItem = orderItemRepository.findItemsById(id);
-            if (orderItem == null) {
-                Product product = productRepository.findProductById(id);
-                if (product == null) {
-                    throw new RuntimeException("Product not found with ID: " + id);
-                }
-                orderItem = new OrderItem();
-                orderItem.setProduct(product);
-                orderItem.setQuantity(1);
-                orderItem.setAmount(product.getPrice());
-            }
-            orderItems.add(orderItem);
-        }
-        return orderItems;
-    }
-
     public Order createOrder(OrderCreateUpdateModel order) {
         User user = userRepository.findById(order.getUserId())
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
@@ -65,40 +46,23 @@ public class OrderService {
         Store store = storeRepository.findById(order.getStoreId())
                 .orElseThrow(() -> new EntityNotFoundException("Store not found"));
 
-        List<OrderItem> orderItems = getOrderItemsFromOrderIds(order);
-
         Order createdOrder = new Order();
         createdOrder.setUser(user);
         createdOrder.setStore(store);
-        createdOrder.setOrderItems(orderItems);
         createdOrder.setOrderStatus(ORDER_STATUS.ORDERED);
         createdOrder.setCreatedAt(new Date());
         createdOrder.setUpdatedAt(new Date());
 
-        // Optional: Address
-        if (order.getShippingAddressId() != null) {
-            Address address = addressRepository.findById(order.getShippingAddressId())
-                    .orElseThrow(() -> new EntityNotFoundException("Shipping address not found"));
-            createdOrder.setShippingAddress(address);
-        }
+        setShippingAddress(createdOrder, order.getShippingAddressId());
 
-        // Calculate amount
+        List<OrderItem> orderItems = getOrderItemsFromOrderIds(order, createdOrder);
+        createdOrder.setOrderItems(orderItems);
+
         double totalAmount = orderItems.stream().mapToDouble(OrderItem::getAmount).sum();
-        createdOrder.setOriginalAmount(totalAmount);
-
-        if (order.getDiscountCouponId() != null) {
-            DiscountCoupon coupon = couponRepository.findById(order.getDiscountCouponId())
-                    .orElseThrow(() -> new EntityNotFoundException("Discount coupon not found"));
-            createdOrder.setDiscountCoupon(coupon);
-            double discount = totalAmount * coupon.getDiscountPercentage() / 100;
-            createdOrder.setDiscountedAmount(totalAmount - discount);
-        } else {
-            createdOrder.setDiscountedAmount(totalAmount);
-        }
+        applyDiscount(createdOrder, totalAmount, order.getDiscountCouponId());
 
         Order savedOrder = orderRepository.save(createdOrder);
 
-        // Link and save items
         orderItems.forEach(item -> {
             item.setOrder(savedOrder);
             orderItemRepository.save(item);
@@ -107,7 +71,6 @@ public class OrderService {
         return savedOrder;
     }
 
-
     public Order updateOrder(OrderCreateUpdateModel order, String orderId) {
         Order existingOrder = orderRepository.findOrderById(orderId);
         if (existingOrder == null) {
@@ -115,40 +78,17 @@ public class OrderService {
         }
 
         if (!order.getOrderItemIds().isEmpty()) {
-            List<OrderItem> orderItems = getOrderItemsFromOrderIds(order);
+            List<OrderItem> orderItems = getOrderItemsFromOrderIds(order, existingOrder);
             existingOrder.setOrderItems(orderItems);
             double amount = orderItems.stream().mapToDouble(OrderItem::getAmount).sum();
-            existingOrder.setOriginalAmount(amount);
-            existingOrder.setDiscountedAmount(amount);
+            applyDiscount(existingOrder, amount, order.getDiscountCouponId());
         } else {
             existingOrder.setOrderItems(null);
             existingOrder.setOrderStatus(ORDER_STATUS.CANCELLED);
-            existingOrder.setOriginalAmount(0.0);
-            existingOrder.setDiscountedAmount(0.0);
+            applyDiscount(existingOrder, 0.0, null);
         }
 
-        if (order.getDiscountCouponId() != null) {
-            DiscountCoupon discountCoupon = couponRepository.findDiscountCouponById(order.getDiscountCouponId());
-            if (discountCoupon == null) {
-                throw new RuntimeException("Discount coupon not found");
-            }
-            existingOrder.setDiscountCoupon(discountCoupon);
-            existingOrder.setOriginalAmount(order.getAmount());
-            double discount = order.getAmount() * discountCoupon.getDiscountPercentage() / 100;
-            existingOrder.setDiscountedAmount(order.getAmount() - discount);
-        } else {
-            existingOrder.setDiscountCoupon(null);
-            existingOrder.setOriginalAmount(order.getAmount());
-            existingOrder.setDiscountedAmount(order.getAmount());
-        }
-
-        if (order.getShippingAddressId() != null) {
-            Address shippingAddress = addressRepository.findAddressById(order.getShippingAddressId());
-            if (shippingAddress == null) {
-                throw new RuntimeException("Shipping address not found");
-            }
-            existingOrder.setShippingAddress(shippingAddress);
-        }
+        setShippingAddress(existingOrder, order.getShippingAddressId());
 
         existingOrder.setUpdatedAt(new Date());
         return orderRepository.save(existingOrder);
@@ -164,12 +104,7 @@ public class OrderService {
     }
 
     public void cancelOrder(String orderId) {
-        Order order = orderRepository.findOrderById(orderId);
-        if (order == null) {
-            throw new RuntimeException("Order not found");
-        }
-        order.setOrderStatus(ORDER_STATUS.CANCELLED);
-        orderRepository.save(order);
+        updateOrderStatus(orderId, ORDER_STATUS.CANCELLED);
     }
 
     public Page<Order> findOrdersByUserId(String userId, Pageable pageable) {
@@ -182,5 +117,45 @@ public class OrderService {
 
     public Page<Order> findOrdersByOrderStatus(ORDER_STATUS orderStatus, Pageable pageable) {
         return orderRepository.findOrdersByOrderStatus(orderStatus, pageable);
+    }
+
+    private void applyDiscount(Order orderEntity, double amount, String couponId) {
+        if (couponId != null) {
+            DiscountCoupon coupon = couponRepository.findDiscountCouponById(couponId);
+            if (coupon == null) throw new RuntimeException("Discount coupon not found");
+            orderEntity.setDiscountCoupon(coupon);
+            double discount = amount * coupon.getDiscountPercentage() / 100;
+            orderEntity.setDiscountedAmount(amount - discount);
+        } else {
+            orderEntity.setDiscountCoupon(null);
+            orderEntity.setDiscountedAmount(amount);
+        }
+        orderEntity.setOriginalAmount(amount);
+    }
+
+    private void setShippingAddress(Order orderEntity, String addressId) {
+        if (addressId != null) {
+            Address address = addressRepository.findById(addressId)
+                    .orElseThrow(() -> new EntityNotFoundException("Shipping address not found"));
+            orderEntity.setShippingAddress(address);
+        }
+    }
+
+    private List<OrderItem> getOrderItemsFromOrderIds(OrderCreateUpdateModel order, Order orderEntity) {
+        List<OrderItem> orderItems = new ArrayList<>();
+        for (String id : order.getOrderItemIds()) {
+            OrderItem orderItem = orderItemRepository.findItemsById(id);
+            if (orderItem == null) {
+                Product product = productRepository.findProductById(id);
+                if (product == null) throw new RuntimeException("Product not found with ID: " + id);
+                orderItem = new OrderItem();
+                orderItem.setProduct(product);
+                orderItem.setQuantity(1);
+                orderItem.setAmount(product.getPrice());
+            }
+            orderItem.setOrder(orderEntity);
+            orderItems.add(orderItem);
+        }
+        return orderItems;
     }
 }

@@ -26,6 +26,14 @@ public class DiscountCoupon {
 
     private Boolean isActive;
 
+    private String createdBy;
+
+    private String updatedBy;
+
+    private Date createDate;
+
+    private Date updateDate;
+
     @PrePersist
     @PreUpdate
     private void updateActiveStatus() {

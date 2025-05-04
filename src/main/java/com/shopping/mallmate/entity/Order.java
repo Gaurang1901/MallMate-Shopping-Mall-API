@@ -41,7 +41,7 @@ public class Order {
 
     private Double discountedAmount;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "order")
     private List<OrderItem> orderItems;
 
     @OneToOne

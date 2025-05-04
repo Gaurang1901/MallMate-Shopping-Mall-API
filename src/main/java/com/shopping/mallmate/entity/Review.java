@@ -1,29 +1,30 @@
 package com.shopping.mallmate.entity;
 
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderItem {
+@Data
+public class Review {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id", nullable = false)
-    private Order order;
+    private String review;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false)
+    private double rating;
+
+    @ManyToOne
     private Product product;
 
-    private int quantity;
+    @ManyToOne
+    private User user;
 
-    private Double amount;
+
 }
