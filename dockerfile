@@ -2,12 +2,13 @@ FROM maven:3.8.3-openjdk-17 AS build
 WORKDIR /app
 COPY pom.xml .
 COPY src ./src
-RUN mvn clean package -DskipTests
+RUN mvn clean package -DskipTests && \
+    ls -l /app/target/
 
 FROM openjdk:17-slim
 WORKDIR /app
 RUN addgroup --system javauser && adduser --system --no-create-home --ingroup javauser javauser
-COPY --from=build /app/target/MallMate-0.0.1-SNAPSHOT.jar MallMate.jar
+COPY --from=build /app/target/*.jar MallMate.jar
 RUN chown -R javauser:javauser /app
 USER javauser
 EXPOSE 8080
