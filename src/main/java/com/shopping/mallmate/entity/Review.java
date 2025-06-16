@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -21,10 +23,19 @@ public class Review {
     private double rating;
 
     @ManyToOne
+    @JoinColumn(name = "product_id") // Explicitly define column name
     private Product product;
 
     @ManyToOne
+    @JoinColumn(name = "store_id") // Add relationship to Store
+    private Store store;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id") // Explicitly define column name
     private User user;
 
+    private Date addedAt;
+
+    private Date updatedAt;
 
 }

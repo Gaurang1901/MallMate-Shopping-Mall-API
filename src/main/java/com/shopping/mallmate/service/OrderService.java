@@ -5,7 +5,6 @@ import com.shopping.mallmate.entity.*;
 import com.shopping.mallmate.entity.enums.ORDER_STATUS;
 import com.shopping.mallmate.repository.*;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -123,6 +122,8 @@ public class OrderService {
         if (couponId != null) {
             DiscountCoupon coupon = couponRepository.findDiscountCouponById(couponId);
             if (coupon == null) throw new RuntimeException("Discount coupon not found");
+            if (!coupon.getIsActive()) throw new RuntimeException("Discount coupon is not active");
+            if (coupon.getExpiryDate().before(new Date())) throw new RuntimeException("Discount coupon has expired");
             orderEntity.setDiscountCoupon(coupon);
             double discount = amount * coupon.getDiscountPercentage() / 100;
             orderEntity.setDiscountedAmount(amount - discount);
@@ -143,15 +144,27 @@ public class OrderService {
 
     private List<OrderItem> getOrderItemsFromOrderIds(OrderCreateUpdateModel order, Order orderEntity) {
         List<OrderItem> orderItems = new ArrayList<>();
+        Store store = storeRepository.findById(order.getStoreId())
+                .orElseThrow(() -> new RuntimeException("Store not found"));
+
         for (String id : order.getOrderItemIds()) {
             OrderItem orderItem = orderItemRepository.findItemsById(id);
             if (orderItem == null) {
                 Product product = productRepository.findProductById(id);
                 if (product == null) throw new RuntimeException("Product not found with ID: " + id);
+                if (!product.getStore().getId().equals(store.getId())) {
+                    throw new RuntimeException("Product does not belong to the store");
+                }
+                if (product.getQuantity() < 1) {
+                    throw new RuntimeException("Product is out of stock: " + product.getName());
+                }
                 orderItem = new OrderItem();
                 orderItem.setProduct(product);
                 orderItem.setQuantity(1);
                 orderItem.setAmount(product.getPrice());
+                // Update product quantity
+                product.setQuantity(product.getQuantity() - 1);
+                productRepository.save(product);
             }
             orderItem.setOrder(orderEntity);
             orderItems.add(orderItem);

@@ -55,33 +55,33 @@ public class StoreService {
 
     public Store updateStore(StoreCreateUpdateRequest store, String id) {
         Store existingStore = storeRepository.findStoreById(id);
-        if (existingStore.getName() != null && !existingStore.getName().isEmpty()) {
+        if (store.getName() != null && !store.getName().isEmpty()) {
             existingStore.setName(store.getName());
         }
-        if (existingStore.getDescription() != null && !existingStore.getDescription().isEmpty()) {
+        if (store.getDescription() != null && !store.getDescription().isEmpty()) {
             existingStore.setDescription(store.getDescription());
         }
-        if (existingStore.getImage() != null && !existingStore.getImage().isEmpty()) {
+        if (store.getImages() != null && !store.getImages().isEmpty()) {
             existingStore.setImage(store.getImages());
         }
-        if (existingStore.getUser() != null) {
+        if (store.getUserId() != null) {
             User user = userRepository.findUserById(store.getUserId());
             existingStore.setUser(user);
         }
-        if (existingStore.getCategory() != null) {
+        if (store.getCategoryId() != null) {
             Category category = categoryRepository.findCategoryById(store.getCategoryId());
             existingStore.setCategory(category);
         }
-        if (existingStore.getPhoneNumber() != null && !existingStore.getPhoneNumber().isEmpty()) {
+        if (store.getPhoneNumber() != null && !store.getPhoneNumber().isEmpty()) {
             existingStore.setPhoneNumber(store.getPhoneNumber());
         }
-        if (existingStore.getInstagramLink() != null && !existingStore.getInstagramLink().isEmpty()) {
+        if (store.getInstagramLink() != null && !store.getInstagramLink().isEmpty()) {
             existingStore.setInstagramLink(store.getInstagramLink());
         }
-        if (existingStore.getFacebookLink() != null && !existingStore.getFacebookLink().isEmpty()) {
+        if (store.getFacebookLink() != null && !store.getFacebookLink().isEmpty()) {
             existingStore.setFacebookLink(store.getFacebookLink());
         }
-        if (existingStore.getTwitterLink() != null && !existingStore.getTwitterLink().isEmpty()) {
+        if (store.getTwitterLink() != null && !store.getTwitterLink().isEmpty()) {
             existingStore.setTwitterLink(store.getTwitterLink());
         }
         return storeRepository.save(existingStore);

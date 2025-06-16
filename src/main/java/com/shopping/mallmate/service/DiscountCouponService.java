@@ -73,7 +73,7 @@ public class DiscountCouponService {
         if (user.getRole().equals(USER_ROLE.ADMIN) || user.getRole().equals(USER_ROLE.OWNER)) {
             return discountCouponRepository.findAll();
         }
-        return null;
+        throw new RuntimeException("You are not authorized to view discount coupons");
     }
 
     public void deleteDiscountCoupon(String discountCouponId) {
@@ -87,6 +87,12 @@ public class DiscountCouponService {
 
     public boolean validateDiscountCoupon(String id) {
         DiscountCoupon discountCoupon = discountCouponRepository.findDiscountCouponById(id);
+        if (discountCoupon == null) {
+            throw new RuntimeException("Discount coupon not found");
+        }
+        if (!discountCoupon.getIsActive()) {
+            return false;
+        }
         return !discountCoupon.getExpiryDate().before(new java.util.Date());
     }
 

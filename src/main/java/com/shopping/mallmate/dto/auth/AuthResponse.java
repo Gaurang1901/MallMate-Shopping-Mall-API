@@ -1,5 +1,6 @@
 package com.shopping.mallmate.dto.auth;
 
+import com.shopping.mallmate.entity.User;
 import com.shopping.mallmate.entity.enums.USER_ROLE;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,7 +15,7 @@ public class AuthResponse {
 
     private String token;
 
-    private String userId;
+    private User user;
 
     private USER_ROLE role;
 

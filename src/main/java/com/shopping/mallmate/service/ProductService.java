@@ -77,10 +77,16 @@ public class ProductService {
         }
         if (product.getCategoryId() != null) {
             ProductCategory category = productCategoryRepository.findCategoryById(product.getCategoryId());
+            if (category == null) {
+                throw new RuntimeException("Category not found");
+            }
             existingProduct.setProductCategory(category);
         }
         if (product.getStoreId() != null) {
             Store store = storeRepository.findStoreById(product.getStoreId());
+            if (store == null) {
+                throw new RuntimeException("Store not found");
+            }
             existingProduct.setStore(store);
         }
         existingProduct.setUpdatedAt(new Date());
@@ -97,7 +103,10 @@ public class ProductService {
     }
 
     public List<Product> searchProduct(String keyword) {
-        return productRepository.searchProduct(keyword);
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return productRepository.findAll();
+        }
+        return productRepository.searchProduct(keyword.trim());
     }
 
 }

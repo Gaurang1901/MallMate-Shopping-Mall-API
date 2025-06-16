@@ -36,6 +36,9 @@ public class Store {
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Product> products;
 
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
+    private List<Review> reviews;
+
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;

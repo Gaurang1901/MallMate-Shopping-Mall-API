@@ -67,7 +67,7 @@ public class AuthController {
             AuthResponse authResponse = new AuthResponse();
             authResponse.setToken(jwt);
             authResponse.setRole(savedUser.getRole());
-            authResponse.setUserId(savedUser.getId());
+            authResponse.setUser(savedUser);
             authResponse.setMsg("User registered successfully");
             authResponse.setStatus(HttpStatus.CREATED.value());
             return new ResponseEntity<>(authResponse, HttpStatus.CREATED);
@@ -88,7 +88,7 @@ public class AuthController {
         authResponse.setMsg("User logged in successfully");
         authResponse.setStatus(HttpStatus.ACCEPTED.value());
         String email = authentication.getName();
-        authResponse.setUserId(userRepository.findUserByEmail(email).getId());
+        authResponse.setUser(userRepository.findUserByEmail(email));
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         String roles = authorities.isEmpty() ? null : authorities.iterator().next().getAuthority();
         authResponse.setRole(USER_ROLE.valueOf(roles));

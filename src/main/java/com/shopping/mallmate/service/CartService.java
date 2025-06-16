@@ -36,6 +36,10 @@ public class CartService {
         for (CartItemRequest itemRequest : itemRequests) {
             CartItems cartItem = cartItemRepository.findByCartIdAndProductId(cartEntity.getId(), itemRequest.getProductId());
             if (cartItem != null) {
+                Product product = cartItem.getProduct();
+                if (product.getQuantity() < cartItem.getQuantity() + itemRequest.getQuantity()) {
+                    throw new RuntimeException("Not enough stock available for product: " + product.getName());
+                }
                 cartItem.setQuantity(cartItem.getQuantity() + itemRequest.getQuantity());
                 cartItem.setAmount(cartItem.getAmount() + itemRequest.getAmount());
             } else {
@@ -43,6 +47,9 @@ public class CartService {
                 cartItem.setCart(cartEntity);
                 Product product = productRepository.findById(itemRequest.getProductId())
                         .orElseThrow(() -> new RuntimeException("Product not found with id: " + itemRequest.getProductId()));
+                if (product.getQuantity() < itemRequest.getQuantity()) {
+                    throw new RuntimeException("Not enough stock available for product: " + product.getName());
+                }
                 cartItem.setProduct(product);
                 cartItem.setQuantity(itemRequest.getQuantity());
                 cartItem.setAmount(itemRequest.getAmount());
@@ -60,6 +67,18 @@ public class CartService {
         cart.setCreatedAt(new Date());
         cart.setUpdatedAt(new Date());
         cart = cartRepository.save(cart); // Save first to generate ID
+
+        // Validate all products belong to the same store
+        String storeId = null;
+        for (CartItemRequest item : cartRequest.getCartItemRequests()) {
+            Product product = productRepository.findById(item.getProductId())
+                    .orElseThrow(() -> new RuntimeException("Product not found with id: " + item.getProductId()));
+            if (storeId == null) {
+                storeId = product.getStore().getId();
+            } else if (!storeId.equals(product.getStore().getId())) {
+                throw new RuntimeException("All products must belong to the same store");
+            }
+        }
 
         List<CartItems> cartItems = buildCartItems(cart, cartRequest.getCartItemRequests());
         double totalAmount = cartItems.stream().mapToDouble(CartItems::getAmount).sum();

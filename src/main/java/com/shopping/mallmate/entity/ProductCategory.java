@@ -20,7 +20,10 @@ public class ProductCategory {
 
     private String name;
 
-    @OneToMany(mappedBy = "productCategory",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @Column(length = 10000)
+    private String image;
+
+    @OneToMany(mappedBy = "productCategory", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Product> products;
 
 

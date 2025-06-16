@@ -43,6 +43,9 @@ public class Product {
     @JoinColumn(name = "store_id", nullable = false)
     private Store store;
 
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<Review> reviews;
+
     private Date createdAt = new Date();
 
     private Date updatedAt = new Date();

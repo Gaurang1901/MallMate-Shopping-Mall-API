@@ -1,4 +1,0 @@
-package com.shopping.mallmate.appconfig;
-
-public class JwtTokenValidator {
-}

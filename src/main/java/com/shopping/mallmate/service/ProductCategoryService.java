@@ -27,12 +27,14 @@ public class ProductCategoryService {
     public ProductCategory createCategory(ProductCategoryCreateUpdateRequest category) {
         ProductCategory productcategory = new ProductCategory();
         productcategory.setName(category.getName());
+        productcategory.setImage(category.getImage());
         return productCategoryRepository.save(productcategory);
     }
 
     public ProductCategory updateCategory(ProductCategoryCreateUpdateRequest category, String id) {
         ProductCategory updatedCategory = findCategoryById(id);
         updatedCategory.setName(category.getName());
+        updatedCategory.setImage(category.getImage());
         return productCategoryRepository.save(updatedCategory);
     }
 

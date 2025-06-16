@@ -2,7 +2,9 @@ package com.shopping.mallmate.controller;
 
 
 import com.shopping.mallmate.dto.ApiResponse;
+import com.shopping.mallmate.dto.productCategory.GetAllProductCategoryResponse;
 import com.shopping.mallmate.dto.productCategory.ProductCategoryCreateUpdateRequest;
+import com.shopping.mallmate.dto.productCategory.ProductCategoryModal;
 import com.shopping.mallmate.entity.ProductCategory;
 import com.shopping.mallmate.repository.ProductCategoryRepository;
 import com.shopping.mallmate.service.ProductCategoryService;
@@ -53,14 +55,16 @@ public class ProductCategoryController {
     }
 
     @GetMapping("product-categories")
-    public ResponseEntity<List<ProductCategory>> getAllCategories() {
+    public ResponseEntity<GetAllProductCategoryResponse> getAllCategories() {
         List<ProductCategory> categories = categoryRepository.findAll();
-        return new ResponseEntity<>(categories, HttpStatus.OK);
+        GetAllProductCategoryResponse response = GetAllProductCategoryResponse.fromEntity(categories);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("product-category/{id}")
-    public ResponseEntity<ProductCategory> getCategoryById(@PathVariable String id) {
+    public ResponseEntity<ProductCategoryModal> getCategoryById(@PathVariable String id) {
         ProductCategory category = categoryService.findCategoryById(id);
-        return new ResponseEntity<>(category, HttpStatus.OK);
+        ProductCategoryModal response = ProductCategoryModal.fromEntity(category);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
