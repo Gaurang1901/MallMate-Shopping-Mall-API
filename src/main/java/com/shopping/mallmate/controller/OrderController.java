@@ -2,16 +2,11 @@ package com.shopping.mallmate.controller;
 
 import com.shopping.mallmate.dto.ApiResponse;
 import com.shopping.mallmate.dto.discountCoupon.ValidateDiscountCouponResponse;
-import com.shopping.mallmate.dto.order.GetOrdersByStoreIdResponse;
 import com.shopping.mallmate.dto.order.GetOrdersByUserIdResponse;
 import com.shopping.mallmate.dto.order.OrderCreateUpdateModel;
 import com.shopping.mallmate.dto.order.orderItem.OrderItemModal;
 import com.shopping.mallmate.dto.user.address.AddressModal;
 import com.shopping.mallmate.entity.Order;
-import com.shopping.mallmate.entity.OrderItem;
-import com.shopping.mallmate.repository.OrderRepository;
-import com.shopping.mallmate.repository.StoreRepository;
-import com.shopping.mallmate.repository.UserRepository;
 import com.shopping.mallmate.service.DiscountCouponService;
 import com.shopping.mallmate.service.OrderService;
 import com.shopping.mallmate.utils.Utility;
@@ -23,8 +18,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -37,9 +30,6 @@ public class OrderController {
 
     @Autowired
     private DiscountCouponService discountCouponService;
-
-    @Autowired
-    private OrderRepository orderRepository;
 
     @PostMapping
     public ResponseEntity<ApiResponse> createOrder(@RequestBody OrderCreateUpdateModel order) {

@@ -7,12 +7,14 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Schema(description = "Request model for creating or updating a product", example = "{\"name\":\"Sample Product\",\"description\":\"A great product\",\"price\":100.0,\"categoryId\":\"cat123\"}")
 public class ProductCreateUpdateRequest {
 
     private String id;
