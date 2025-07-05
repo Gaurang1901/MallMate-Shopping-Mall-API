@@ -31,7 +31,7 @@ public class OrderController {
     @Autowired
     private DiscountCouponService discountCouponService;
 
-    @PostMapping
+    @PostMapping("order")
     public ResponseEntity<ApiResponse> createOrder(@RequestBody OrderCreateUpdateModel order) {
         Order createdOrder = orderService.createOrder(order);
         ApiResponse response = new ApiResponse("Order created successfully", HttpStatus.CREATED.value());
