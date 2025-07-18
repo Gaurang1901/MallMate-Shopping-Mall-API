@@ -2,6 +2,9 @@ package com.shopping.mallmate.controller;
 
 import com.shopping.mallmate.appconfig.JwtProvider;
 import com.shopping.mallmate.dto.auth.AuthResponse;
+import com.shopping.mallmate.dto.auth.AuthSignInRequest;
+import com.shopping.mallmate.dto.auth.AuthSignupRequest;
+import com.shopping.mallmate.dto.auth.UserResponse;
 import com.shopping.mallmate.entity.User;
 import com.shopping.mallmate.entity.enums.USER_ROLE;
 import com.shopping.mallmate.repository.UserRepository;
@@ -39,7 +42,7 @@ public class AuthController {
     private UserRepository userRepository;
 
     @PostMapping("/signup")
-    ResponseEntity<AuthResponse> signUp(@RequestBody User authRequest) {
+    ResponseEntity<AuthResponse> signUp(@RequestBody AuthSignupRequest authRequest) {
 
         User alreadyUser = userRepository.findUserByEmail(authRequest.getEmail());
         if (alreadyUser != null) {
@@ -67,7 +70,8 @@ public class AuthController {
             AuthResponse authResponse = new AuthResponse();
             authResponse.setToken(jwt);
             authResponse.setRole(savedUser.getRole());
-            authResponse.setUser(savedUser);
+            UserResponse userResponse = UserResponse.fromEntity(savedUser);
+            authResponse.setUser(userResponse);
             authResponse.setMsg("User registered successfully");
             authResponse.setStatus(HttpStatus.CREATED.value());
             return new ResponseEntity<>(authResponse, HttpStatus.CREATED);
@@ -75,7 +79,7 @@ public class AuthController {
     }
 
     @PostMapping("/signin")
-    ResponseEntity<AuthResponse> signIn(@RequestBody User authRequest) {
+    ResponseEntity<AuthResponse> signIn(@RequestBody AuthSignInRequest authRequest) {
         String username = authRequest.getEmail();
         String password = authRequest.getPassword();
 
@@ -88,7 +92,8 @@ public class AuthController {
         authResponse.setMsg("User logged in successfully");
         authResponse.setStatus(HttpStatus.ACCEPTED.value());
         String email = authentication.getName();
-        authResponse.setUser(userRepository.findUserByEmail(email));
+        User user = userRepository.findUserByEmail(email);
+        authResponse.setUser(UserResponse.fromEntity(user));
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         String roles = authorities.isEmpty() ? null : authorities.iterator().next().getAuthority();
         authResponse.setRole(USER_ROLE.valueOf(roles));

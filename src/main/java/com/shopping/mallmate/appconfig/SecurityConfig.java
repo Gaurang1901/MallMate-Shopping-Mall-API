@@ -53,7 +53,7 @@ public class SecurityConfig {
                 cfg.setAllowedOrigins(Arrays.asList(
                         "http://localhost:3000/",
                         "http://localhost:5173/",
-                        "https://feastfly-food-ordering.vercel.app/"
+                        "https://mall-mate-web-app.vercel.app/"
                 ));
                 cfg.setAllowedMethods(Collections.singletonList("*"));
                 cfg.setAllowCredentials(true);

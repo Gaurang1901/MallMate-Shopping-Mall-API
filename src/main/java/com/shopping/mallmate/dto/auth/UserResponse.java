@@ -19,7 +19,7 @@ public class UserResponse {
 
     private String name;
 
-    public UserResponse fromEntity(User user) {
+    public static UserResponse fromEntity(User user) {
         return new UserResponse(
                 user.getId(),
                 user.getEmail(),

@@ -34,6 +34,8 @@ public class ProductGetResponse {
 
     private String categoryName;
 
+    private String brandName;
+
     public static ProductGetResponse fromEntity(Product product) {
         return new ProductGetResponse(
                 product.getId(),
@@ -45,7 +47,8 @@ public class ProductGetResponse {
                 product.getStore() != null ? product.getStore().getId() : null,
                 product.getStore() != null ? product.getStore().getName() : null,
                 product.getProductCategory() != null ? product.getProductCategory().getId() : null,
-                product.getProductCategory() != null ? product.getProductCategory().getName() : null
+                product.getProductCategory() != null ? product.getProductCategory().getName() : null,
+                product.getBrandName()
         );
     }
 

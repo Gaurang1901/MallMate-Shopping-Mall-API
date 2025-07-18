@@ -10,6 +10,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.data.domain.Page;
+import com.shopping.mallmate.dto.product.ProductFilterRequest;
+import org.springframework.web.bind.annotation.ModelAttribute;
 
 import java.util.List;
 
@@ -39,6 +44,13 @@ public class ProductController {
     public ResponseEntity<List<ProductGetResponse>> searchProduct(@Param("keyword") String keyword) {
         List<Product> products = productService.searchProduct(keyword);
         List<ProductGetResponse> response = products.stream().map(ProductGetResponse::fromEntity).toList();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/products/filter")
+    public ResponseEntity<Page<ProductGetResponse>> getFilteredProducts(@ModelAttribute ProductFilterRequest filterRequest) {
+        Page<Product> products = productService.findAllProductsWithFilters(filterRequest);
+        Page<ProductGetResponse> response = products.map(ProductGetResponse::fromEntity);
         return ResponseEntity.ok(response);
     }
 }

@@ -14,7 +14,6 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "Request model for creating or updating a product", example = "{\"name\":\"Sample Product\",\"description\":\"A great product\",\"price\":100.0,\"categoryId\":\"cat123\"}")
 public class ProductCreateUpdateRequest {
 
     private String id;
@@ -39,4 +38,6 @@ public class ProductCreateUpdateRequest {
 
     @NotNull(message = "Store ID is required")
     private String storeId;
+
+    private String brandName;
 }

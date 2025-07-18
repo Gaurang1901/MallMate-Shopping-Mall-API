@@ -26,8 +26,7 @@ public class AdminProductController {
         requestBody = @RequestBody(
             required = true,
             content = @Content(
-                schema = @Schema(implementation = ProductCreateUpdateRequest.class),
-                examples = @ExampleObject(value = "{\"name\":\"Sample Product\",\"description\":\"A great product\",\"price\":100.0,\"categoryId\":\"cat123\"}")
+                schema = @Schema(implementation = ProductCreateUpdateRequest.class)
             )
         ),
         responses = {
@@ -36,7 +35,7 @@ public class AdminProductController {
         }
     )
     @PostMapping("/product")
-    public ResponseEntity<ApiResponse> createProduct(@RequestBody ProductCreateUpdateRequest product) {
+    public ResponseEntity<ApiResponse> createProduct(@org.springframework.web.bind.annotation.RequestBody ProductCreateUpdateRequest product) {
         Product createdProduct = productService.createProduct(product);
         ApiResponse response = new ApiResponse();
         response.setMessage("Product created successfully");
@@ -48,8 +47,7 @@ public class AdminProductController {
         requestBody = @RequestBody(
             required = true,
             content = @Content(
-                schema = @Schema(implementation = ProductCreateUpdateRequest.class),
-                examples = @ExampleObject(value = "{\"name\":\"Updated Product\",\"description\":\"Updated description\",\"price\":120.0,\"categoryId\":\"cat123\"}")
+                schema = @Schema(implementation = ProductCreateUpdateRequest.class)
             )
         ),
         responses = {
@@ -58,7 +56,7 @@ public class AdminProductController {
         }
     )
     @PutMapping("/product/{id}")
-    public ResponseEntity<ApiResponse> updateProduct(@RequestBody ProductCreateUpdateRequest product, @PathVariable String id) {
+    public ResponseEntity<ApiResponse> updateProduct(@org.springframework.web.bind.annotation.RequestBody ProductCreateUpdateRequest product, @PathVariable String id) {
         Product createdProduct = productService.updateProduct(id, product);
         ApiResponse response = new ApiResponse();
         response.setMessage("Product updated successfully");

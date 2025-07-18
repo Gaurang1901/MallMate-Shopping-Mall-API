@@ -22,6 +22,8 @@ public class ProductResponseForStores {
 
     private int quantity;
 
+    private String brandName;
+
 
     public static ProductResponseForStores fromEntity(Product product) {
         return new ProductResponseForStores(
@@ -29,7 +31,8 @@ public class ProductResponseForStores {
                 product.getName(),
                 product.getDescription(),
                 product.getPrice(),
-                product.getQuantity()
+                product.getQuantity(),
+                product.getBrandName()
         );
 
     }
